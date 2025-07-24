@@ -34,4 +34,10 @@ export const deleteNote = (id, token) =>
   api.delete(`/notes/delete/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+  // ✅ New: Get Profile Info
+export const getProfile = (token) =>
+  api.get('/auth/profile', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 export default api;

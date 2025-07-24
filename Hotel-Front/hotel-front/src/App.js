@@ -8,6 +8,7 @@ import SignUp from "./components/SignUp";
 import SaveNote from "./components/SaveNote";
 import MyNotes from "./components/MyNotes";
 import Users from "./components/Users"; 
+import MyProfile from './components/MyProfile'; 
 const App = () => {
   return (
     <Router>
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/save-note" element={<SaveNote />} />
         <Route path="/my-notes" element={<MyNotes />} />
           <Route path="/users" element={<Users />} /> 
+          <Route path="/profile" element={<MyProfile />} />
       </Routes>
     </Router>
   );

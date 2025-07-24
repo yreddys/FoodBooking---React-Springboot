@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { register } from './api';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaLock } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const SignUp = () => {
   const [form, setForm] = useState({ userName: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false); // 👁️ state
   const navigate = useNavigate();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,13 +45,20 @@ const SignUp = () => {
           <div className="mb-3 position-relative">
             <FaLock className="position-absolute top-50 translate-middle-y ms-2 text-muted" />
             <input
-              type="password"
-              className="form-control ps-5"
+              type={showPassword ? 'text' : 'password'}
+              className="form-control ps-5 pe-5"
               placeholder="Password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
             />
+            <span
+              className="position-absolute top-50 end-0 translate-middle-y me-3"
+              onClick={togglePasswordVisibility}
+              style={{ cursor: 'pointer' }}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
           <button type="submit" className="btn btn-success w-100 fw-semibold shadow-sm">

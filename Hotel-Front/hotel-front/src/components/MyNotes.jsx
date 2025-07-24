@@ -58,8 +58,8 @@ const MyNotes = () => {
             <div key={note.id} className="col-md-6 col-lg-4 mb-4">
               <div className="card h-100 shadow-sm border-0">
                 <div className="card-body">
-                  <h5 className="card-title text-success fw-bold">Note #{note.id}</h5>
-                  
+                  <h5 className="card-title text-success fw-bold">{note.title}</h5>
+
                   {editNoteId === note.id ? (
                     <>
                       <textarea

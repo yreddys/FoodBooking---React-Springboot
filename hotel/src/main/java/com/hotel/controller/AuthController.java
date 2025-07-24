@@ -32,7 +32,9 @@ import com.hotel.entity.Users;
 import com.hotel.jwt.JwtUtil;
 import com.hotel.payload.AuthRequest;
 import com.hotel.payload.AuthResponse;
+import com.hotel.payload.UserProfileDto;
 import com.hotel.repository.UserRepo;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -48,13 +50,6 @@ public class AuthController {
 	private AuthenticationManager authManager;
 	@Autowired
 	private JwtUtil jwtUtil;
-
-//	@PostMapping("/signup")
-//	public ResponseEntity<String> signup(@RequestBody Users user) {
-//		user.setPassword(encoder.encode(user.getPassword()));
-//		userRepo.save(user);
-//		return ResponseEntity.ok("User registered");
-//	}
 
 	@PostMapping("/signup")
 	public ResponseEntity<String> signup(@RequestBody Users user) {
@@ -82,14 +77,6 @@ public class AuthController {
 		userRepo.save(user);
 		return ResponseEntity.ok("User registered successfully");
 	}
-
-//	@PostMapping("/login")
-//	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-//		Authentication auth = authManager
-//				.authenticate(new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword()));
-//		String token = jwtUtil.generateToken((UserDetails) auth.getPrincipal());
-//		return ResponseEntity.ok(new AuthResponse(token));
-//	}
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
@@ -127,39 +114,53 @@ public class AuthController {
 	@PutMapping("/update-role/{userId}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<String> updateUserRole(@PathVariable("userId") int userId,
-	                                             @RequestBody Map<String, String> requestBody) {
-	    // Extract new role from request
-	    String newRoleName = requestBody.get("role"); // Expected: "ADMIN" or "USER"
+			@RequestBody Map<String, String> requestBody) {
+		// Extract new role from request
+		String newRoleName = requestBody.get("role"); // Expected: "ADMIN" or "USER"
 
-	    if (newRoleName == null || newRoleName.trim().isEmpty()) {
-	        return ResponseEntity.badRequest().body("Role must be provided");
-	    }
+		if (newRoleName == null || newRoleName.trim().isEmpty()) {
+			return ResponseEntity.badRequest().body("Role must be provided");
+		}
 
-	    // Fetch the user from DB
-	    Optional<Users> optionalUser = userRepo.findById(userId);
-	    if (optionalUser.isEmpty()) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-	    }
+		// Fetch the user from DB
+		Optional<Users> optionalUser = userRepo.findById(userId);
+		if (optionalUser.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+		}
 
-	    Users user = optionalUser.get();
+		Users user = optionalUser.get();
 
-	    // Normalize and set the role
-	    String normalizedRole = newRoleName.trim().toUpperCase();
+		// Normalize and set the role
+		String normalizedRole = newRoleName.trim().toUpperCase();
 
-	    // Create a new Role object (this assumes Role is not tied to a separate table requiring lookup)
-	    Role updatedRole = new Role();
-	    updatedRole.setRoleName(normalizedRole);
+		// Create a new Role object (this assumes Role is not tied to a separate table
+		// requiring lookup)
+		Role updatedRole = new Role();
+		updatedRole.setRoleName(normalizedRole);
 
-	    // ✅ Use a mutable Set instead of Set.of()
-	    Set<Role> newRoleSet = new HashSet<>();
-	    newRoleSet.add(updatedRole);
+		// ✅ Use a mutable Set instead of Set.of()
+		Set<Role> newRoleSet = new HashSet<>();
+		newRoleSet.add(updatedRole);
 
-	    user.setRole(newRoleSet);
+		user.setRole(newRoleSet);
 
-	    // Save updated user to DB
-	    userRepo.save(user);
+		// Save updated user to DB
+		userRepo.save(user);
 
-	    return ResponseEntity.ok("User role updated to " + normalizedRole);
+		return ResponseEntity.ok("User role updated to " + normalizedRole);
+	}
+
+	// In AuthController.java
+	@GetMapping("/profile")
+	public ResponseEntity<UserProfileDto> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+		Users user = userRepo.findByUserName(userDetails.getUsername()).orElseThrow();
+
+		Set<String> roles = user.getRole().stream().map(role -> "ROLE_" + role.getRoleName().toUpperCase())
+				.collect(Collectors.toSet());
+
+		UserProfileDto profile = new UserProfileDto(user.getUserName(), roles, user.isEnabled());
+
+		return ResponseEntity.ok(profile);
 	}
 
 }

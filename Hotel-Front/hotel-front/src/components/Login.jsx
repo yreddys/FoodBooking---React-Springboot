@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from './api';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const [form, setForm] = useState({ userName: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false); // 👁️ visibility toggle
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -43,17 +45,24 @@ const Login = () => {
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 position-relative">
             <label htmlFor="password" className="form-label">Password</label>
             <input
               id="password"
-              type="password"
-              className="form-control"
+              type={showPassword ? 'text' : 'password'}
+              className="form-control pe-5"
               placeholder="Enter password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
             />
+            <span
+              className="position-absolute top-50 end-0 translate-middle-y me-3"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
           <button type="submit" className="btn btn-primary w-100">
