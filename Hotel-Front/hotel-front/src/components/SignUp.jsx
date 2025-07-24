@@ -3,13 +3,13 @@ import { register } from './api';
 import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
-  const [form, setForm] = useState({ userName: '', password: '', role: 'USER' });
+  const [form, setForm] = useState({ userName: '', password: '' });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(form);
+      await register(form);  // no 'role' sent
       alert('Signup successful. Please log in.');
       navigate('/login');
     } catch (err) {

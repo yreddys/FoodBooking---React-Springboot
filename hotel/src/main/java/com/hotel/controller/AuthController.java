@@ -53,6 +53,7 @@ public class AuthController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<String> signup(@RequestBody Users user) {
+		System.out.println("user" + user);
 		user.setPassword(encoder.encode(user.getPassword()));
 
 		Set<Role> roles = user.getRole();
@@ -114,6 +115,7 @@ public class AuthController {
 	@GetMapping("/all")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<List<Users>> getAllUsers(Authentication authentication) {
+		System.out.println("authentication : " + authentication);
 		return ResponseEntity.ok(userRepo.findAll());
 	}
 }

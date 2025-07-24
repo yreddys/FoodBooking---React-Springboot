@@ -10,10 +10,16 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login(form);
-      const { token, role } = res.data;
+      const { token, roles } = res.data; // ✅ fixed: changed from role → roles
 
       localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
+
+      if (roles && Array.isArray(roles)) {
+        localStorage.setItem('roles', JSON.stringify(roles)); // ✅ fix applied here
+      } else {
+        console.warn('[Login Component] Invalid roles data, skipping storage');
+      }
+
       navigate('/');
     } catch (err) {
       alert('Login failed');
@@ -41,7 +47,7 @@ const Login = () => {
 
       <div className="flex flex-col space-y-2">
         <label htmlFor="password" className="font-semibold text-gray-700">
-          Password 
+          Password
         </label>
         <input
           id="password"
