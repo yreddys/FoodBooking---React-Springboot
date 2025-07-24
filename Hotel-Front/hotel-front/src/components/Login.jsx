@@ -10,62 +10,62 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login(form);
-      const { token, roles } = res.data; // ✅ fixed: changed from role → roles
+      const { token, roles } = res.data;
 
       localStorage.setItem('token', token);
-
       if (roles && Array.isArray(roles)) {
-        localStorage.setItem('roles', JSON.stringify(roles)); // ✅ fix applied here
-      } else {
-        console.warn('[Login Component] Invalid roles data, skipping storage');
+        localStorage.setItem('roles', JSON.stringify(roles));
       }
 
       navigate('/');
     } catch (err) {
-      alert('Login failed');
+      alert('Login failed. Please check credentials.');
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-md mx-auto mt-10 space-y-6 bg-white p-6 rounded shadow"
-    >
-      <div className="flex flex-col space-y-2">
-        <label htmlFor="username" className="font-semibold text-gray-700">
-          Username
-        </label>
-        <input
-          id="username"
-          type="text"
-          placeholder="Enter your username"
-          value={form.userName}
-          onChange={(e) => setForm({ ...form, userName: e.target.value })}
-          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+    <div className="container d-flex align-items-center justify-content-center min-vh-100 bg-light">
+      <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
+        <h3 className="text-center text-primary mb-3">Login</h3>
+        <p className="text-center text-muted">Enter your credentials to continue</p>
 
-      <div className="flex flex-col space-y-2">
-        <label htmlFor="password" className="font-semibold text-gray-700">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="username" className="form-label">Username</label>
+            <input
+              id="username"
+              type="text"
+              className="form-control"
+              placeholder="Enter username"
+              value={form.userName}
+              onChange={(e) => setForm({ ...form, userName: e.target.value })}
+              required
+            />
+          </div>
 
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition"
-      >
-        Login
-      </button>
-    </form>
+          <div className="mb-4">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              id="password"
+              type="password"
+              className="form-control"
+              placeholder="Enter password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary w-100">
+            Log In
+          </button>
+        </form>
+
+        <p className="mt-3 text-center text-muted small">
+          Your credentials are safe and secure.
+        </p>
+      </div>
+    </div>
   );
 };
 

@@ -1,95 +1,113 @@
 import React, { useEffect, useState } from 'react';
-import { getAllUsers } from './api';
+import { getAllUsers, updateUserRole } from './api';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [role, setRole] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [roleUpdates, setRoleUpdates] = useState({});
 
   useEffect(() => {
-    console.log('[Users Component] useEffect triggered');
-
     const storedToken = localStorage.getItem('token');
     const rolesRaw = localStorage.getItem('roles');
-    let storedRoles = [];
-
-    try {
-      storedRoles = rolesRaw ? JSON.parse(rolesRaw) : [];
-    } catch (err) {
-      console.error('[Users Component] Failed to parse roles from localStorage:', err);
-      storedRoles = [];
-    }
-
-    console.log('[Users Component] Retrieved token:', storedToken);
-    console.log('[Users Component] Retrieved roles:', storedRoles);
+    const storedRoles = rolesRaw ? JSON.parse(rolesRaw) : [];
 
     const hasAdminRole = storedRoles?.includes('ROLE_ADMIN');
     setRole(hasAdminRole ? 'ADMIN' : 'USER');
 
     if (hasAdminRole) {
-      console.log('[Users Component] User is ADMIN, fetching users...');
       getAllUsers(storedToken)
         .then(res => {
-          console.log('[Users Component] Users fetched successfully:', res.data);
           setUsers(res.data);
           setLoading(false);
         })
         .catch(err => {
-          console.error('[Users Component] Error fetching users:', err);
+          console.error('Error fetching users:', err);
           setError('Failed to fetch users');
           setLoading(false);
         });
     } else {
-      console.warn('[Users Component] Access Denied - Not an ADMIN');
       setLoading(false);
     }
   }, []);
 
-  if (loading) {
-    console.log('[Users Component] Loading...');
-    return (
-      <div className="p-4">
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    );
-  }
+  const handleRoleChange = (userId, newRole) => {
+    setRoleUpdates(prev => ({ ...prev, [userId]: newRole }));
+  };
+
+  const handleUpdateClick = async (userId) => {
+    const newRole = roleUpdates[userId];
+    if (!newRole) return;
+
+    const token = localStorage.getItem('token');
+    try {
+      await updateUserRole(userId, newRole, token);
+      alert('Role updated successfully');
+      const refreshed = await getAllUsers(token);
+      setUsers(refreshed.data);
+    } catch (err) {
+      console.error('Error updating role:', err);
+      alert('Failed to update role');
+    }
+  };
+
+  if (loading) return <div className="text-center mt-4">Loading...</div>;
 
   if (role !== 'ADMIN') {
-    console.log('[Users Component] Rendering Access Denied');
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-red-600">Access Denied</h2>
-        <p className="mt-2">You do not have permission to check this.</p>
+      <div className="alert alert-danger text-center mt-4">
+        <h4>Access Denied</h4>
+        <p>You do not have permission to view this page.</p>
       </div>
     );
   }
 
   if (error) {
-    console.error('[Users Component] Rendering error:', error);
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-red-600">Error</h2>
-        <p className="mt-2">{error}</p>
+      <div className="alert alert-warning text-center mt-4">
+        <h4>Error</h4>
+        <p>{error}</p>
       </div>
     );
   }
 
-  console.log('[Users Component] Rendering user list:', users);
-
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">All Users</h2>
+    <div className="container mt-5">
+      <h2 className="mb-4 text-center text-primary">All Users</h2>
       {users.length === 0 ? (
-        <p>No users found.</p>
+        <p className="text-center">No users found.</p>
       ) : (
-        users.map((user, idx) => (
-          <div key={idx} className="border p-2 mb-2 rounded">
-            <p><strong>ID:</strong> {user.userId}</p>
-            <p><strong>Email:</strong> {user.userName}</p>
-            <p><strong>Role:</strong> {user.role?.[0]?.roleName || 'N/A'}</p>
-          </div>
-        ))
+        <div className="row">
+          {users.map((user, idx) => (
+            <div key={idx} className="col-md-6 col-lg-4 mb-4">
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">ID: {user.userId}</h5>
+                  <p className="card-text"><strong>Email:</strong> {user.userName}</p>
+                  <p className="card-text"><strong>Role:</strong> {user.role?.[0]?.roleName || 'N/A'}</p>
+
+                  <div className="d-flex gap-2 align-items-center mt-3">
+                    <select
+                      value={roleUpdates[user.userId] || user.role?.[0]?.roleName || ''}
+                      onChange={(e) => handleRoleChange(user.userId, e.target.value)}
+                      className="form-select form-select-sm"
+                    >
+                      <option value="ADMIN">ADMIN</option>
+                      <option value="USER">USER</option>
+                    </select>
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => handleUpdateClick(user.userId)}
+                    >
+                      Update Role
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

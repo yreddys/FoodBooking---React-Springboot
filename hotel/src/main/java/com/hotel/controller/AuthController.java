@@ -1,6 +1,9 @@
 package com.hotel.controller;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,7 +20,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -118,4 +123,43 @@ public class AuthController {
 		System.out.println("authentication : " + authentication);
 		return ResponseEntity.ok(userRepo.findAll());
 	}
+
+	@PutMapping("/update-role/{userId}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<String> updateUserRole(@PathVariable("userId") int userId,
+	                                             @RequestBody Map<String, String> requestBody) {
+	    // Extract new role from request
+	    String newRoleName = requestBody.get("role"); // Expected: "ADMIN" or "USER"
+
+	    if (newRoleName == null || newRoleName.trim().isEmpty()) {
+	        return ResponseEntity.badRequest().body("Role must be provided");
+	    }
+
+	    // Fetch the user from DB
+	    Optional<Users> optionalUser = userRepo.findById(userId);
+	    if (optionalUser.isEmpty()) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+	    }
+
+	    Users user = optionalUser.get();
+
+	    // Normalize and set the role
+	    String normalizedRole = newRoleName.trim().toUpperCase();
+
+	    // Create a new Role object (this assumes Role is not tied to a separate table requiring lookup)
+	    Role updatedRole = new Role();
+	    updatedRole.setRoleName(normalizedRole);
+
+	    // ✅ Use a mutable Set instead of Set.of()
+	    Set<Role> newRoleSet = new HashSet<>();
+	    newRoleSet.add(updatedRole);
+
+	    user.setRole(newRoleSet);
+
+	    // Save updated user to DB
+	    userRepo.save(user);
+
+	    return ResponseEntity.ok("User role updated to " + normalizedRole);
+	}
+
 }

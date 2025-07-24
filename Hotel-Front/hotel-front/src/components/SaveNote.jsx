@@ -1,4 +1,3 @@
-// src/components/SaveNote.jsx
 import React, { useState } from 'react';
 import { saveNote } from './api';
 
@@ -15,46 +14,61 @@ const SaveNote = () => {
 
     try {
       await saveNote(note, token);
-      alert('Note saved successfully');
+      alert('✅ Note saved successfully');
       setNote({ title: '', content: '' });
     } catch (error) {
-      alert('Failed to save note');
+      alert('❌ Failed to save note');
     }
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Save a New Note</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">Title</label>
-          <input
-            type="text"
-            name="title"
-            value={note.title}
-            onChange={handleChange}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-lg-6">
+          <div className="card shadow border-0">
+            <div className="card-body p-4">
+              <h3 className="card-title text-center text-primary mb-4">📝 Save a New Note</h3>
+
+              <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                <div className="mb-3">
+                  <label htmlFor="title" className="form-label fw-semibold">Title</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="title"
+                    name="title"
+                    value={note.title}
+                    onChange={handleChange}
+                    placeholder="Enter note title"
+                    required
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="content" className="form-label fw-semibold">Content</label>
+                  <textarea
+                    className="form-control"
+                    id="content"
+                    name="content"
+                    value={note.content}
+                    onChange={handleChange}
+                    rows="5"
+                    placeholder="Write your note here..."
+                    required
+                  ></textarea>
+                </div>
+
+                <div className="d-grid">
+                  <button type="submit" className="btn btn-primary btn-lg">
+                    💾 Save Note
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
         </div>
-        <div>
-          <label className="block mb-1">Content</label>
-          <textarea
-            name="content"
-            value={note.content}
-            onChange={handleChange}
-            className="w-full border px-2 py-1 rounded"
-            rows="4"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Save Note
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
