@@ -9,6 +9,10 @@ import SaveNote from "./components/SaveNote";
 import MyNotes from "./components/MyNotes";
 import Users from "./components/Users"; 
 import MyProfile from './components/MyProfile'; 
+import OTPVerification from './components/OTPVerification';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+
 const App = () => {
   return (
     <Router>
@@ -21,6 +25,9 @@ const App = () => {
         <Route path="/my-notes" element={<MyNotes />} />
           <Route path="/users" element={<Users />} /> 
           <Route path="/profile" element={<MyProfile />} />
+            <Route path="/verify-otp" element={<OTPVerification />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>
   );

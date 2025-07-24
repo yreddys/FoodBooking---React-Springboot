@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,14 +28,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hotel.email.EmailService;
 import com.hotel.entity.Role;
 import com.hotel.entity.Users;
 import com.hotel.jwt.JwtUtil;
 import com.hotel.payload.AuthRequest;
 import com.hotel.payload.AuthResponse;
+import com.hotel.payload.ForgotPasswordRequest;
+import com.hotel.payload.OtpRequest;
+import com.hotel.payload.ResetPasswordRequest;
 import com.hotel.payload.UserProfileDto;
 import com.hotel.repository.UserRepo;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -51,20 +55,19 @@ public class AuthController {
 	@Autowired
 	private JwtUtil jwtUtil;
 
+	@Autowired
+	private EmailService emailService;
+
 	@PostMapping("/signup")
 	public ResponseEntity<String> signup(@RequestBody Users user) {
-		System.out.println("user" + user);
 		user.setPassword(encoder.encode(user.getPassword()));
 
 		Set<Role> roles = user.getRole();
-
 		if (roles == null || roles.isEmpty()) {
-			// Default to USER role
 			Role defaultRole = new Role();
 			defaultRole.setRoleName("USER");
 			user.setRole(Set.of(defaultRole));
 		} else {
-			// Normalize role names and ensure proper assignment
 			Set<Role> updatedRoles = roles.stream().map(role -> {
 				Role r = new Role();
 				String roleName = role.getRoleName().toUpperCase();
@@ -74,13 +77,49 @@ public class AuthController {
 			user.setRole(updatedRoles);
 		}
 
+		user.setEnabled(false);
 		userRepo.save(user);
-		return ResponseEntity.ok("User registered successfully");
+
+		// Send verification email
+		emailService.sendOtpEmail(user.getUserName());
+
+		return ResponseEntity.ok("User registered successfully. Please verify your email.");
+	}
+
+	@PostMapping("/verify-otp")
+	public ResponseEntity<String> verifyOtp(@RequestBody OtpRequest request) {
+		String otp = request.getOtp();
+
+		if (!emailService.verifyOtp(otp)) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP.");
+		}
+
+		String email = emailService.getEmailByOtp(otp);
+		Users user = userRepo.findByUserName(email).orElseThrow();
+		user.setEnabled(true);
+		userRepo.save(user);
+
+		return ResponseEntity.ok("Email verified successfully.");
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
 		logger.info("Login attempt for user: {}", request.getUserName());
+
+		Optional<Users> optionalUser = userRepo.findByUserName(request.getUserName());
+		if (optionalUser.isEmpty()) {
+			logger.warn("Login failed: user not found - {}", request.getUserName());
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		}
+
+		Users user = optionalUser.get();
+
+		// ✅ Check if user is verified
+		if (!user.isEnabled()) {
+			logger.warn("Login blocked: email not verified for user - {}", request.getUserName());
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+					.body(new AuthResponse(null, Set.of("EMAIL_NOT_VERIFIED")));
+		}
 
 		try {
 			Authentication auth = authManager.authenticate(
@@ -161,6 +200,37 @@ public class AuthController {
 		UserProfileDto profile = new UserProfileDto(user.getUserName(), roles, user.isEnabled());
 
 		return ResponseEntity.ok(profile);
+	}
+
+	@PostMapping("/forgot-password")
+	public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+		String email = request.getEmail();
+
+		Optional<Users> userOpt = userRepo.findByUserName(email);
+		if (userOpt.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+
+		emailService.sendOtpEmail(email);
+		return ResponseEntity.ok("OTP sent to your email.");
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+		String otp = request.getOtp();
+		String newPassword = request.getNewPassword();
+
+		if (!emailService.verifyOtp(otp)) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP.");
+		}
+
+		String email = emailService.getEmailByOtp(otp);
+		Users user = userRepo.findByUserName(email).orElseThrow();
+
+		user.setPassword(encoder.encode(newPassword));
+		userRepo.save(user);
+
+		return ResponseEntity.ok("Password updated successfully.");
 	}
 
 }

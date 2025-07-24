@@ -1,7 +1,5 @@
 package com.hotel.entity;
 
-
-
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,117 +8,122 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "users") 
+@Table(name = "users")
 public class Users implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int userId;
 
-    @Column(nullable = false, unique = true)
-    private String userName;
+	@Column(nullable = false, unique = true)
+	private String userName;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> role = new HashSet<>();
+	@Column(nullable = false)
+	private boolean enabled = false; // Default to false until email is verified
 
-    // === Constructors ===
+	@Column(name = "verification_token")
+	private String verificationToken; // For email verification only
 
-    public Users() {
-    }
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> role = new HashSet<>();
 
-    public Users(int userId, String userName, String password, Set<Role> role) {
-        this.userId = userId;
-        this.userName = userName;
-        this.password = password;
-        this.role = role;
-    }
+	// === Constructors ===
 
-    // === Getters and Setters ===
+	public Users() {
+	}
 
-    public int getUserId() {
-        return userId;
-    }
+	public Users(int userId, String userName, String password, Set<Role> role) {
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.role = role;
+	}
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
+	// === Getters and Setters ===
 
-    public String getUserName() {
-        return userName;
-    }
+	public int getUserId() {
+		return userId;
+	}
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	public String getUserName() {
+		return userName;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
-    public Set<Role> getRole() {
-        return role;
-    }
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    public void setRole(Set<Role> role) {
-        this.role = role;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    // === UserDetails Interface Methods ===
+	public Set<Role> getRole() {
+		return role;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.stream()
-                .map(r -> (GrantedAuthority) () -> "ROLE_" + r.getRoleName())
-                .collect(Collectors.toList());
-    }
+	public void setRole(Set<Role> role) {
+		this.role = role;
+	}
 
-    @Override
-    public String getUsername() {
-        return this.userName;  // <-- FIXED this line
-    }
+	// === UserDetails Interface Methods ===
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return role.stream().map(r -> (GrantedAuthority) () -> "ROLE_" + r.getRoleName()).collect(Collectors.toList());
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	@Override
+	public String getUsername() {
+		return this.userName; // <-- FIXED this line
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    // === toString() for logging/debugging ===
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
-    @Override
-    public String toString() {
-        return "Users{" +
-                "userId=" + userId +
-                ", userName='" + userName + '\'' +
-                ", password='******'" +
-                ", role=" + role +
-                '}';
-    }
+//	@Override
+//	public boolean isEnabled() {
+//		return true;
+//	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public String getVerificationToken() {
+		return verificationToken;
+	}
+
+	public void setVerificationToken(String verificationToken) {
+		this.verificationToken = verificationToken;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
 }

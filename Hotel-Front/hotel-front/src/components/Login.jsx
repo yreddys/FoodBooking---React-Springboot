@@ -66,8 +66,15 @@ const Login = () => {
           </div>
 
           <button type="submit" className="btn btn-primary w-100">
-            Log In
-          </button>
+  Login
+</button>
+
+<p className="text-center mt-2">
+  <a href="/forgot-password" className="text-primary text-decoration-none">
+    Forgot Password?
+  </a>
+</p>
+
         </form>
 
         <p className="mt-3 text-center text-muted small">

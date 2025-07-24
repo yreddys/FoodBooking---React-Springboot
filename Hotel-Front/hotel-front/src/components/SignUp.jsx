@@ -5,7 +5,7 @@ import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const SignUp = () => {
   const [form, setForm] = useState({ userName: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false); // 👁️ state
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -13,15 +13,16 @@ const SignUp = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await register(form);
-      alert('Signup successful. Please log in.');
-      navigate('/login');
-    } catch (err) {
-      alert('Signup failed.');
-    }
-  };
+  e.preventDefault();
+  try {
+    await register(form);
+    alert('Signup successful. Please verify OTP sent to your email.');
+    navigate('/verify-otp'); // ✅ Redirect to OTP verification page
+  } catch (err) {
+    alert('Signup failed.');
+  }
+};
+
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">

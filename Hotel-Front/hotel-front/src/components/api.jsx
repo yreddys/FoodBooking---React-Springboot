@@ -40,4 +40,12 @@ export const getProfile = (token) =>
   api.get('/auth/profile', {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+  export const verifyOtp = (otp) =>
+  api.post('/auth/verify-otp', { otp });
+  export const forgotPassword = (email) =>
+  api.post('/auth/forgot-password', { email });
+
+export const resetPassword = (otp, newPassword) =>
+  api.post('/auth/reset-password', { otp, newPassword });
 export default api;
