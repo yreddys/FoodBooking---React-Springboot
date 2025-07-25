@@ -60,5 +60,16 @@ export const confirmPayment = (paymentConfirmation, token) =>
   api.post('/payment/confirm', paymentConfirmation, {
     headers: { Authorization: `Bearer ${token}` },
   });
+// Search notes by title
+export const searchNotesByTitle = (title, token) => {
+  return axios.get(`/api/notes/search`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params: {
+      title: title,
+    },
+  });
+};
 
 export default api;

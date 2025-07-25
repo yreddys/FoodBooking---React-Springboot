@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hotel.entity.Users;
@@ -98,4 +99,14 @@ public class NoteController {
 		noteRepository.delete(existingNote);
 		return ResponseEntity.ok("Note deleted successfully");
 	}
+	
+	@GetMapping("/search")
+	public ResponseEntity<List<Note>> searchNotesByTitle(
+	        @RequestParam("title") String title,
+	        @AuthenticationPrincipal UserDetails userDetails) {
+	    Users user = userRepository.findByUserName(userDetails.getUsername()).orElseThrow();
+	    List<Note> notes = noteRepository.findByUserAndTitleContainingIgnoreCase(user, title);
+	    return ResponseEntity.ok(notes);
+	}
+
 }

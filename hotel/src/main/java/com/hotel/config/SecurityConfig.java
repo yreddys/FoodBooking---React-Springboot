@@ -33,7 +33,13 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/verify-otp",
-								"/api/auth/forgot-password", "/api/auth/reset-password")
+								"/api/auth/forgot-password", "/api/auth/reset-password",
+								// ✅ Allow Swagger URLs
+				                "/v3/api-docs/**",
+				                "/swagger-ui/**",
+				                "/swagger-ui.html",
+				                "/swagger-resources/**",
+				                "/webjars/**")
 						.permitAll().anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

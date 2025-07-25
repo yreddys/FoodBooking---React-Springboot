@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
 	List<Note> findByUser(Users user);
+
+	List<Note> findByUserAndTitleContainingIgnoreCase(Users user, String title);
 }
