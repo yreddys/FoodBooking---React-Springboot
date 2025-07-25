@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8080/api';
+  const API_BASE = 'http://localhost:8080/api';
+//const API_BASE = 'http://app3-env.eba-t6mr8drh.ap-south-1.elasticbeanstalk.com/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -48,4 +49,16 @@ export const getProfile = (token) =>
 
 export const resetPassword = (otp, newPassword) =>
   api.post('/auth/reset-password', { otp, newPassword });
+
+export const createOrder = (token) =>
+  api.post('/payment/create-order', {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+
+export const confirmPayment = (paymentConfirmation, token) =>
+  api.post('/payment/confirm', paymentConfirmation, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 export default api;

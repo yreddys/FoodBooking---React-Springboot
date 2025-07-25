@@ -6,15 +6,17 @@ public class UserProfileDto {
 	private String userName;
 	private Set<String> roles;
 	private boolean enabled;
+	private boolean isPremium;
 
-	// Constructor
-	public UserProfileDto(String userName, Set<String> roles, boolean enabled) {
+	// ✅ Updated Constructor to include isPremium
+	public UserProfileDto(String userName, Set<String> roles, boolean enabled, boolean isPremium) {
 		this.userName = userName;
 		this.roles = roles;
 		this.enabled = enabled;
+		this.isPremium = isPremium;
 	}
 
-	// Getters and Setters
+	// === Getters and Setters ===
 	public String getUserName() {
 		return userName;
 	}
@@ -37,5 +39,13 @@ public class UserProfileDto {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public boolean isPremium() {
+		return isPremium;
+	}
+
+	public void setPremium(boolean premium) {
+		isPremium = premium;
 	}
 }

@@ -12,6 +12,9 @@ import MyProfile from './components/MyProfile';
 import OTPVerification from './components/OTPVerification';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import './App.css';
+import './responsive.css';
+import SubscribePage from './components/SubscribePage';
 
 const App = () => {
   return (
@@ -28,6 +31,7 @@ const App = () => {
             <Route path="/verify-otp" element={<OTPVerification />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/subscribe" element={<SubscribePage />} />
       </Routes>
     </Router>
   );

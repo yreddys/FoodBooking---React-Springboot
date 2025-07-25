@@ -1,8 +1,35 @@
-import React, { useState } from 'react';
-import { saveNote } from './api';
+// src/SaveNote.js
+import React, { useState, useEffect } from 'react';
+import { saveNote, getProfile, getMyNotes } from './api';
+import { useNavigate } from 'react-router-dom';
 
 const SaveNote = () => {
   const [note, setNote] = useState({ title: '', content: '' });
+  const [isPremium, setIsPremium] = useState(false);
+  const [notesCount, setNotesCount] = useState(0);
+
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    const checkLimit = async () => {
+      try {
+        const profileRes = await getProfile(token);
+        const notesRes = await getMyNotes(token);
+
+        setIsPremium(profileRes.data.premium);
+        setNotesCount(notesRes.data.length);
+
+        if (!profileRes.data.premium && notesRes.data.length >= 5) {
+          navigate('/subscribe'); // 🔄 redirect when limit reached
+        }
+      } catch (err) {
+        console.error('Failed to fetch user info', err);
+      }
+    };
+
+    checkLimit();
+  }, [token, navigate]);
 
   const handleChange = (e) => {
     setNote({ ...note, [e.target.name]: e.target.value });
@@ -10,12 +37,11 @@ const SaveNote = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-
     try {
       await saveNote(note, token);
       alert('✅ Note saved successfully');
       setNote({ title: '', content: '' });
+      setNotesCount(notesCount + 1);
     } catch (error) {
       alert('❌ Failed to save note');
     }
@@ -29,7 +55,7 @@ const SaveNote = () => {
             <div className="card-body p-4">
               <h3 className="card-title text-center text-primary mb-4">📝 Save a New Note</h3>
 
-              <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-3">
                   <label htmlFor="title" className="form-label fw-semibold">Title</label>
                   <input

@@ -189,7 +189,6 @@ public class AuthController {
 		return ResponseEntity.ok("User role updated to " + normalizedRole);
 	}
 
-	// In AuthController.java
 	@GetMapping("/profile")
 	public ResponseEntity<UserProfileDto> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
 		Users user = userRepo.findByUserName(userDetails.getUsername()).orElseThrow();
@@ -197,7 +196,10 @@ public class AuthController {
 		Set<String> roles = user.getRole().stream().map(role -> "ROLE_" + role.getRoleName().toUpperCase())
 				.collect(Collectors.toSet());
 
-		UserProfileDto profile = new UserProfileDto(user.getUserName(), roles, user.isEnabled());
+		// ✅ Pass isPremium to the constructor
+		UserProfileDto profile = new UserProfileDto(user.getUserName(), roles, user.isEnabled(),
+				Boolean.TRUE.equals(user.getIsPremium()) // Safe unboxing
+		);
 
 		return ResponseEntity.ok(profile);
 	}

@@ -1,0 +1,20 @@
+/* responsive.css */
+@media screen and (max-width: 768px) {
+  .hero {
+    padding: 40px 10px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .button {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px;
+  }
+}

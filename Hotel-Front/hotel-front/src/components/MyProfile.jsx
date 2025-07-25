@@ -10,14 +10,18 @@ const MyProfile = () => {
   useEffect(() => {
     if (token) {
       getProfile(token)
-        .then((res) => setProfile(res.data))
-        .catch(() => alert('Failed to load profile'));
+        .then((res) => {
+          console.log('📄 Profile fetched:', res.data);
+          setProfile(res.data);
+        })
+        .catch(() => alert('❌ Failed to load profile'));
     }
   }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('roles');
+    localStorage.removeItem('user'); // Optional if you're using it
     navigate('/login');
   };
 
@@ -38,6 +42,7 @@ const MyProfile = () => {
               <h3 className="card-title text-primary mb-4 text-center">👤 My Profile</h3>
               <p><strong>Username:</strong> {profile.userName}</p>
               <p><strong>Roles:</strong> {profile.roles.join(', ')}</p>
+              <p><strong>Premium Status:</strong> {profile.premium ? '✅ Yes' : '❌ No'}</p>
 
               <div className="text-center mt-4">
                 <button className="btn btn-outline-danger" onClick={handleLogout}>
