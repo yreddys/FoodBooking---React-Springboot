@@ -34,6 +34,8 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/verify-otp",
 								"/api/auth/forgot-password", "/api/auth/reset-password",
+								"/api/subscribe/send-otp",
+								"/api/subscribe/verify",
 								// ✅ Allow Swagger URLs
 				                "/v3/api-docs/**",
 				                "/swagger-ui/**",

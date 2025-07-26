@@ -98,7 +98,8 @@ public class AuthController {
 		Users user = userRepo.findByUserName(email).orElseThrow();
 		user.setEnabled(true);
 		userRepo.save(user);
-
+		// welcome email
+		emailService.sendWelcomeEmail(user.getUserName());
 		return ResponseEntity.ok("Email verified successfully.");
 	}
 

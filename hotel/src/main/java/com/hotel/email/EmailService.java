@@ -63,4 +63,16 @@ public class EmailService {
 			otpToEmail.remove(otp);
 		}
 	}
+	
+	public void sendWelcomeEmail(String email) {
+	    String subject = "Welcome to Note Keeper 🎉";
+	    String body = "Hi there!\n\n" +
+	                  "Thanks for subscribing to Note Keeper. 📝\n\n" +
+	                  "You'll now receive the latest updates, tips, and features directly to your inbox.\n\n" +
+	                  "Happy Note Taking!\n\n" +
+	                  "— Team Note Keeper";
+
+	    sendEmail(email, subject, body);
+	}
+
 }

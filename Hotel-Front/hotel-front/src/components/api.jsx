@@ -71,5 +71,13 @@ export const searchNotesByTitle = (title, token) => {
     },
   });
 };
+// ✅ Send OTP to email for subscription
+export const sendSubscriptionOtp = (email) => {
+  return axios.post(`${API_BASE}/subscribe/send-otp`, { email });
+};
 
+// ✅ Verify OTP and subscribe the user
+export const verifySubscriptionOtp = (otp) => {
+  return axios.post(`${API_BASE}/subscribe/verify`, { otp });
+};
 export default api;

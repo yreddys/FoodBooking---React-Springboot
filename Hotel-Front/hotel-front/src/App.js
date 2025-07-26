@@ -15,7 +15,8 @@ import ResetPassword from './components/ResetPassword';
 import './App.css';
 import './responsive.css';
 import SubscribePage from './components/SubscribePage';
-
+import SubscribeForm from './components/SubscribeForm';
+import VerifySubscriptionOtp from './components/VerifySubscriptionOtp';
 const App = () => {
   return (
     <Router>
@@ -32,6 +33,8 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/subscribe" element={<SubscribePage />} />
+              <Route path="/subscribe-email" element={<SubscribeForm />} />
+               <Route path="/verify-subscription-otp" element={<VerifySubscriptionOtp />} />
       </Routes>
     </Router>
   );
