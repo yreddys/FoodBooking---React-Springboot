@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+
 const Navbar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // Check if user has ROLE_ADMIN
   const roles = JSON.parse(localStorage.getItem("roles")) || [];
   const isAdmin = roles.includes("ROLE_ADMIN");
 
@@ -20,24 +20,26 @@ const Navbar = () => {
       <h2 style={{ margin: 0 }}>📝 Note App</h2>
       <div>
         <Link to="/" style={linkStyle}>Home</Link>
+
         {token && <Link to="/save-note" style={linkStyle}>Save Note</Link>}
-        {token && isAdmin && <Link to="/users" style={linkStyle}>Users</Link>}
         {token && <Link to="/my-notes" style={linkStyle}>My Notes</Link>}
         {token && <Link to="/profile" style={linkStyle}>My Profile</Link>}
 
-        {!token && (
+        {token && isAdmin && (
+          <>
+            <Link to="/users" style={linkStyle}>Users</Link>
+            <Link to="/admin/publish-update" style={linkStyle}>Publish Update</Link>
+          </>
+        )}
+
+        {!token ? (
           <>
             <Link to="/login" style={linkStyle}>Login</Link>
             <Link to="/signup" style={linkStyle}>Signup</Link>
           </>
-        )}
-
-        {/* 
-        // If you want to add logout here in future, use this:
-        {token && (
+        ) : (
           <button onClick={handleLogout} style={logoutButtonStyle}>Logout</button>
         )}
-        */}
       </div>
     </nav>
   );
@@ -50,13 +52,12 @@ const navStyle = {
   background: "#333",
   color: "white",
   padding: "10px 20px",
-  position: "fixed",      // 👈 Fixes the navbar to the top
-  top: 0,                 // 👈 Aligns it at the top of the page
+  position: "fixed",
+  top: 0,
   left: 0,
   right: 0,
-  zIndex: 1000,           // 👈 Ensures it stays above other elements
+  zIndex: 1000,
 };
-
 
 const linkStyle = {
   color: "white",

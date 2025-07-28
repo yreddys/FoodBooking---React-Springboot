@@ -80,4 +80,9 @@ export const sendSubscriptionOtp = (email) => {
 export const verifySubscriptionOtp = (otp) => {
   return axios.post(`${API_BASE}/subscribe/verify`, { otp });
 };
+// ✅ Publish update (ADMIN only)
+export const publishUpdate = (updatePost, token) =>
+  axios.post(`${API_BASE}/admin/updates/publish`, updatePost, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 export default api;

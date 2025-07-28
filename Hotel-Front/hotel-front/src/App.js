@@ -17,6 +17,8 @@ import './responsive.css';
 import SubscribePage from './components/SubscribePage';
 import SubscribeForm from './components/SubscribeForm';
 import VerifySubscriptionOtp from './components/VerifySubscriptionOtp';
+import AdminUpdateForm from './components/AdminUpdateForm';
+
 const App = () => {
   return (
     <Router>
@@ -35,6 +37,8 @@ const App = () => {
               <Route path="/subscribe" element={<SubscribePage />} />
               <Route path="/subscribe-email" element={<SubscribeForm />} />
                <Route path="/verify-subscription-otp" element={<VerifySubscriptionOtp />} />
+               <Route path="/admin/publish-update" element={<AdminUpdateForm />} />
+
       </Routes>
     </Router>
   );
