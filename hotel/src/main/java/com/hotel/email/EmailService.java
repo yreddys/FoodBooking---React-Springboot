@@ -77,4 +77,13 @@ public class EmailService {
 		sendEmail(email, subject, body);
 	}
 
+	public void sendTemporaryPasswordEmail(String email, String tempPassword) {
+		String subject = "Temporary Password - Action Required";
+		String body = "Hi,\n\n" + "You've been registered.\n" + "👉 Temporary password: " + tempPassword + "\n\n"
+				+ "Please login and change your password immediately.\n\n"
+				 + "Thanks,\nTeam";
+
+		sendEmail(email, subject, body);
+	}
+
 }

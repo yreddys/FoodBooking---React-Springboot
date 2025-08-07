@@ -1,7 +1,7 @@
 import axios from 'axios';
 
   const API_BASE = 'http://localhost:8080/api';
-//const API_BASE = 'http://app3-env.eba-t6mr8drh.ap-south-1.elasticbeanstalk.com/api';
+// const API_BASE = 'http://hotel4-env.eba-erqr2quj.ap-south-1.elasticbeanstalk.com/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -85,4 +85,21 @@ export const publishUpdate = (updatePost, token) =>
   axios.post(`${API_BASE}/admin/updates/publish`, updatePost, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  export const uploadUsersFromExcel = (file, token) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return api.post('/user-management/upload-users', formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const changePassword = (data) =>
+  api.post('/user-management/change-password', data);
+
+  
+
 export default api;

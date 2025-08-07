@@ -11,130 +11,136 @@ import java.util.stream.Collectors;
 @Table(name = "users")
 public class Users implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int userId;
 
-    @Column(nullable = false, unique = true)
-    private String userName;
+	@Column(nullable = false, unique = true)
+	private String userName;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Column(nullable = false)
-    private boolean enabled = false; // Default to false until email is verified
+	@Column(nullable = false)
+	private boolean enabled = false; // Default to false until email is verified
 
-    @Column(name = "is_premium", nullable = false)
-    private boolean isPremium = false; // ✅ primitive type (no null issues)
+	@Column(name = "is_premium", nullable = false)
+	private boolean isPremium = false; // ✅ primitive type (no null issues)
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> role = new HashSet<>();
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> role = new HashSet<>();
 
-    // ===== Constructors =====
-    public Users() {
-        this.enabled = false;
-        this.isPremium = false;
-    }
+	// only for some users only not for all
 
-    public Users(int userId, String userName, String password, Set<Role> role) {
-        this.userId = userId;
-        this.userName = userName;
-        this.password = password;
-        this.role = role;
-        this.enabled = false;
-        this.isPremium = false;
-    }
+	@Column(name = "force_password_change", nullable = false)
+	private boolean forcePasswordChange = false;
 
-    // ===== Getters & Setters =====
-    public int getUserId() {
-        return userId;
-    }
+	public boolean isForcePasswordChange() {
+		return forcePasswordChange;
+	}
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
+	public void setForcePasswordChange(boolean forcePasswordChange) {
+		this.forcePasswordChange = forcePasswordChange;
+	}
 
-    public String getUserName() {  // your custom getter
-        return userName;
-    }
+	// ===== Constructors =====
+	public Users() {
+		this.enabled = false;
+		this.isPremium = false;
+	}
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+	public Users(int userId, String userName, String password, Set<Role> role) {
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.role = role;
+		this.enabled = false;
+		this.isPremium = false;
+	}
 
-    @Override
-    public String getUsername() {  // required by Spring Security
-        return userName;
-    }
+	// ===== Getters & Setters =====
+	public int getUserId() {
+		return userId;
+	}
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public String getUserName() { // your custom getter
+		return userName;
+	}
 
-    public boolean getIsPremium() {
-        return isPremium;
-    }
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
-    public void setIsPremium(boolean isPremium) {
-        this.isPremium = isPremium;
-    }
+	@Override
+	public String getUsername() { // required by Spring Security
+		return userName;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public Set<Role> getRole() {
-        return role;
-    }
+	public boolean getIsPremium() {
+		return isPremium;
+	}
 
-    public void setRole(Set<Role> role) {
-        this.role = role;
-    }
+	public void setIsPremium(boolean isPremium) {
+		this.isPremium = isPremium;
+	}
 
-    // ===== UserDetails Interface Methods =====
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.stream()
-                .map(r -> (GrantedAuthority) () -> "ROLE_" + r.getRoleName())
-                .collect(Collectors.toList());
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	public Set<Role> getRole() {
+		return role;
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	public void setRole(Set<Role> role) {
+		this.role = role;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	// ===== UserDetails Interface Methods =====
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return role.stream().map(r -> (GrantedAuthority) () -> "ROLE_" + r.getRoleName()).collect(Collectors.toList());
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
 	@Override
 	public String toString() {
 		return "Users [userId=" + userId + ", userName=" + userName + ", password=" + password + ", enabled=" + enabled
 				+ ", isPremium=" + isPremium + ", role=" + role + "]";
 	}
-    
-    
+
 }

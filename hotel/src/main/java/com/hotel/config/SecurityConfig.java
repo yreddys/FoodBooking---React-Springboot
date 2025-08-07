@@ -31,17 +31,11 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/verify-otp",
-								"/api/auth/forgot-password", "/api/auth/reset-password",
-								"/api/subscribe/send-otp",
-								"/api/subscribe/verify",
-								// ✅ Allow Swagger URLs
-				                "/v3/api-docs/**",
-				                "/swagger-ui/**",
-				                "/swagger-ui.html",
-				                "/swagger-resources/**",
-				                "/webjars/**")
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login", "/api/auth/signup",
+						"/api/auth/verify-otp", "/api/auth/forgot-password", "/api/auth/reset-password",
+						"/api/subscribe/send-otp", "/api/subscribe/verify", "/api/user-management/change-password",
+						// ✅ Allow Swagger URLs
+						"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**")
 						.permitAll().anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -57,7 +51,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		 config.addAllowedOriginPattern("*"); 
+		config.addAllowedOriginPattern("*");
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);

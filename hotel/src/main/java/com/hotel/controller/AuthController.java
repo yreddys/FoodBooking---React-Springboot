@@ -103,6 +103,47 @@ public class AuthController {
 		return ResponseEntity.ok("Email verified successfully.");
 	}
 
+//	@PostMapping("/login")
+//	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+//		logger.info("Login attempt for user: {}", request.getUserName());
+//
+//		Optional<Users> optionalUser = userRepo.findByUserName(request.getUserName());
+//		if (optionalUser.isEmpty()) {
+//			logger.warn("Login failed: user not found - {}", request.getUserName());
+//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+//		}
+//
+//		Users user = optionalUser.get();
+//
+//		// ✅ Check if user is verified
+//		if (!user.isEnabled()) {
+//			logger.warn("Login blocked: email not verified for user - {}", request.getUserName());
+//			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//					.body(new AuthResponse(null, Set.of("EMAIL_NOT_VERIFIED")));
+//		}
+//
+//		try {
+//			Authentication auth = authManager.authenticate(
+//					new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword()));
+//
+//			logger.info("Authentication successful for user: {}", request.getUserName());
+//
+//			UserDetails userDetails = (UserDetails) auth.getPrincipal();
+//			String token = jwtUtil.generateToken(userDetails);
+//
+//			Set<String> roles = userDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
+//					.collect(Collectors.toSet());
+//
+//			logger.debug("Generated JWT token: {}", token);
+//			logger.debug("User roles: {}", roles);
+//
+//			return ResponseEntity.ok(new AuthResponse(token, roles));
+//		} catch (Exception ex) {
+//			logger.error("Authentication failed for user: {} - {}", request.getUserName(), ex.getMessage());
+//			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//		}
+//	}
+
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
 		logger.info("Login attempt for user: {}", request.getUserName());
@@ -115,11 +156,18 @@ public class AuthController {
 
 		Users user = optionalUser.get();
 
-		// ✅ Check if user is verified
+		// ✅ 1. Email must be verified
 		if (!user.isEnabled()) {
 			logger.warn("Login blocked: email not verified for user - {}", request.getUserName());
 			return ResponseEntity.status(HttpStatus.FORBIDDEN)
-					.body(new AuthResponse(null, Set.of("EMAIL_NOT_VERIFIED")));
+					.body(new AuthResponse(null, Set.of("EMAIL_NOT_VERIFIED"), false));
+		}
+
+		// ✅ 2. Password change required?
+		if (user.isForcePasswordChange()) {
+			logger.warn("Login blocked: user must change password - {}", request.getUserName());
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+					.body(new AuthResponse(null, Set.of("PASSWORD_CHANGE_REQUIRED"), true));
 		}
 
 		try {
@@ -134,10 +182,10 @@ public class AuthController {
 			Set<String> roles = userDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
 					.collect(Collectors.toSet());
 
-			logger.debug("Generated JWT token: {}", token);
-			logger.debug("User roles: {}", roles);
+			return ResponseEntity.ok(new AuthResponse(token, roles, false) // ✅ Normal login, no password change
+																			// required
+			);
 
-			return ResponseEntity.ok(new AuthResponse(token, roles));
 		} catch (Exception ex) {
 			logger.error("Authentication failed for user: {} - {}", request.getUserName(), ex.getMessage());
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

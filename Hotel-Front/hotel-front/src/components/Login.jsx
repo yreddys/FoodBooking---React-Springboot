@@ -1,27 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from './api';
+import { login } from './api'; // API helper
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const [form, setForm] = useState({ userName: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false); // 👁️ visibility toggle
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const res = await login(form);
-      const { token, roles } = res.data;
+      const { token, roles, forcePasswordChange } = res.data;
 
+      // Save to localStorage
       localStorage.setItem('token', token);
-      if (roles && Array.isArray(roles)) {
-        localStorage.setItem('roles', JSON.stringify(roles));
-      }
+      localStorage.setItem('roles', JSON.stringify(roles));
+      localStorage.setItem('forcePasswordChange', forcePasswordChange);
 
-      navigate('/');
+      // Check if password needs to be changed
+      if (forcePasswordChange) {
+        localStorage.setItem('userName', form.userName); // Needed for change-password page
+        navigate('/change-password');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
-      alert('Login failed. Please check credentials.');
+      if (err.response && err.response.status === 403) {
+        // If backend blocks login due to password change requirement
+        localStorage.setItem('forcePasswordChange', true);
+        localStorage.setItem('userName', form.userName);
+        navigate('/change-password');
+      } else {
+        alert('Login failed. Please check your credentials.');
+      }
     }
   };
 
@@ -59,22 +73,19 @@ const Login = () => {
             <span
               className="position-absolute top-50 end-0 translate-middle-y me-3"
               style={{ cursor: 'pointer' }}
-              onClick={() => setShowPassword((prev) => !prev)}
+              onClick={() => setShowPassword(prev => !prev)}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">
-  Login
-</button>
+          <button type="submit" className="btn btn-primary w-100">Login</button>
 
-<p className="text-center mt-2">
-  <a href="/forgot-password" className="text-primary text-decoration-none">
-    Forgot Password?
-  </a>
-</p>
-
+          <p className="text-center mt-2">
+            <a href="/forgot-password" className="text-primary text-decoration-none">
+              Forgot Password?
+            </a>
+          </p>
         </form>
 
         <p className="mt-3 text-center text-muted small">

@@ -21,7 +21,7 @@ const MyProfile = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('roles');
-    localStorage.removeItem('user'); // Optional if you're using it
+    localStorage.removeItem('user'); 
     navigate('/login');
   };
 
