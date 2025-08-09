@@ -1,14 +1,15 @@
 package com.hotel.email;
 
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class EmailService {
@@ -84,6 +85,22 @@ public class EmailService {
 				 + "Thanks,\nTeam";
 
 		sendEmail(email, subject, body);
+	}
+
+	public void sendInterestEmail(String email, Set<String> interests) {
+	    String interestsText = String.join(", ", interests);
+
+	    String subject = "Opportunities Based on Your Interests";
+
+	    String body = "Hello,\n\n"
+	            + "We noticed you have shown interest in the following topics:\n"
+	            + interestsText + "\n\n"
+	            + "We believe you might be interested in exploring these further.\n"
+	            + "Please book an appointment to learn more about these opportunities.\n\n"
+	            + "Best regards,\n"
+	            + "App Team!";
+
+	    sendEmail(email, subject, body);
 	}
 
 }

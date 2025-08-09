@@ -10,13 +10,6 @@ const Navbar = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("roles");
-    navigate("/login");
-    setMenuOpen(false); // Close menu on logout
-  };
-
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
@@ -45,17 +38,17 @@ const Navbar = () => {
             <Link to="/users" onClick={() => setMenuOpen(false)}>Users</Link>
             <Link to="/upload-users" onClick={() => setMenuOpen(false)}>Upload Users</Link>
             <Link to="/admin/publish-update" onClick={() => setMenuOpen(false)}>Publish Update</Link>
+            <Link to="/admin/send-interest-emails" onClick={() => setMenuOpen(false)}>Send Interest Emails</Link>
           </>
         )}
 
-        {!token ? (
+        {!token && (
           <>
             <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
             <Link to="/signup" onClick={() => setMenuOpen(false)}>Signup</Link>
           </>
-        ) : (
-          <button onClick={handleLogout} className="logout-button">Logout</button>
         )}
+        {/* ✅ Removed Logout button from here */}
       </div>
     </nav>
   );

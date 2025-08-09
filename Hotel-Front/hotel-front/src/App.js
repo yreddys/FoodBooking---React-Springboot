@@ -18,6 +18,7 @@ import VerifySubscriptionOtp from './components/VerifySubscriptionOtp';
 import AdminUpdateForm from './components/AdminUpdateForm';
 import UploadUsers from './components/UploadUsers';        // ✅ NEW
 import ChangePassword from './components/ChangePassword';  // ✅ NEW
+import SendInterestEmails from './components/SendInterestEmails'; // ✅ Add this
 
 import './App.css';
 import './responsive.css';
@@ -45,7 +46,7 @@ const App = () => {
         {/* ✅ NEW ROUTES */}
         <Route path="/upload-users" element={<UploadUsers />} />
         <Route path="/change-password" element={<ChangePassword />} />
-
+ <Route path="/admin/send-interest-emails" element={<SendInterestEmails />} />
       </Routes>
     </Router>
   );

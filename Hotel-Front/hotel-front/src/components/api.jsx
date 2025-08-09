@@ -100,6 +100,11 @@ export const publishUpdate = (updatePost, token) =>
 export const changePassword = (data) =>
   api.post('/user-management/change-password', data);
 
-  
+  // ✅ Send interest emails (ADMIN only)
+export const sendInterestEmails = (token) =>
+  api.post('/interests/send-interest-emails', {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 
 export default api;
